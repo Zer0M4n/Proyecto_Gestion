@@ -1,0 +1,32 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'login/styles/login.css' %}"/>
+    <title>Iniciar Sesión</title>
+</head>
+<body>
+    <div class="main-container">
+        <div class="content-container left">
+            <h1>¡Bienvenido a SDC!</h1>
+            <h2>Sistema de Distribución Comunitario</h2>
+            <p>Inicia sesión y comienza a navegar en nuestra plataforma.</p>
+        </div>
+        <div class="content-container right">
+            <h1>¡Únete a nuestra plataforma!</h1>
+            <div class="button-container">
+                <button class="btn primary" onclick="window.location.href='{% url 'auth' %}'">
+                    Iniciar Sesión
+                </button>
+                <button class="btn secondary" onclick="window.location.href='{% url 'register' %}'">
+                    Registrarse
+                </button>
+            </div>
+        </div>
+    </div>
+    <p> Diseño preeliminar de la IA.</p>
+</body>
+</html>

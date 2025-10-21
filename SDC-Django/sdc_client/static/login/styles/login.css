@@ -1,0 +1,126 @@
+/* estilo global */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    height: 100vh;
+    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+}
+
+/* cards */
+.main-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: stretch;
+    background-color: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+    overflow: hidden;
+    width: 80%;
+    max-width: 1000px;
+    transition: all 0.3s ease;
+}
+
+.content-container {
+    flex: 1;
+    padding: 60px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+}
+
+/* lode izquierdo de la card */
+.content-container.left {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.content-container.left h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+}
+
+.content-container.left h2 {
+    font-size: 1.2rem;
+    font-weight: 400;
+    margin-bottom: 20px;
+}
+
+.content-container.left p {
+    font-size: 1rem;
+    color: #e0e0e0;
+}
+
+/* lado derecho de la card */
+.content-container.right {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.content-container.right h1 {
+    font-size: 2rem;
+    margin-bottom: 30px;
+}
+
+/* estilo de los botones */
+.button-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn.primary {
+    background-color: #00b4d8;
+    color: white;
+}
+
+.btn.primary:hover {
+    background-color: #0096c7;
+    transform: translateY(-2px);
+}
+
+.btn.secondary {
+    background-color: transparent;
+    border: 2px solid #fff;
+    color: white;
+}
+
+.btn.secondary:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+}
+
+/* bloque de responsividad */
+@media (max-width: 768px) {
+    .main-container {
+        flex-direction: column;
+        width: 90%;
+    }
+    .content-container {
+        padding: 40px 20px;
+    }
+    .button-container {
+        flex-direction: column;
+    }
+}
