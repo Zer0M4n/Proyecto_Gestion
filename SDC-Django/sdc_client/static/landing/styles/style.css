@@ -1,0 +1,196 @@
+/* ===== VARIABLES ===== */
+:root {
+  --primary: #0077B6;
+  --secondary: #00B4D8;
+  --accent: #90BE6D;
+  --light: #F1F1F1;
+  --dark: #1B1B1B;
+  --white: #FFFFFF;
+  --font: 'Poppins', sans-serif;
+}
+
+/* ===== GLOBAL ===== */
+body {
+  margin: 0;
+  font-family: var(--font);
+  background: var(--light);
+  color: var(--dark);
+  scroll-behavior: smooth;
+}
+
+/* ===== NAVBAR ===== */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--white);
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.navbar .logo {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--primary);
+}
+
+.navbar ul {
+  list-style: none;
+  display: flex;
+  gap: 1rem;
+}
+
+.navbar a {
+  text-decoration: none;
+  color: var(--dark);
+  font-weight: 500;
+}
+
+.navbar a:hover {
+  color: var(--primary);
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  padding: 0.6rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.3s;
+  cursor: pointer;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+}
+
+.btn-primary:hover {
+  background: var(--secondary);
+}
+
+.btn-outline {
+  border: 2px solid var(--primary);
+  color: var(--primary);
+  margin: 0px;
+}
+
+.btn-outline:hover {
+  background: var(--primary);
+  color: var(--white);
+}
+
+/* ===== HERO ===== */
+.hero {
+  background: linear-gradient(rgba(0,119,182,0.7), rgba(0,119,182,0.7)), url('https://images.unsplash.com/photo-1581092795360-fd1d7c3a6f1f?auto=format&fit=crop&w=1600&q=80');
+  background-size: cover;
+  background-position: center;
+  color: var(--white);
+  text-align: center;
+  padding: 6rem 2rem;
+}
+
+.hero h1 {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.hero p {
+  max-width: 600px;
+  margin: 0 auto 2rem;
+  font-size: 1.1rem;
+}
+
+/* ===== FEATURES ===== */
+.features {
+  padding: 4rem 2rem;
+  text-align: center;
+  background: var(--white);
+}
+
+.features h2 {
+  margin-bottom: 2rem;
+  color: var(--primary);
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.feature-card {
+  background: var(--light);
+  padding: 1.5rem;
+  border-radius: 12px;
+  transition: 0.3s;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  background: var(--secondary);
+  color: var(--white);
+}
+
+/* ===== TEAM ===== */
+.team {
+  padding: 4rem 2rem;
+  background: var(--light);
+  text-align: center;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1.5rem;
+}
+
+.team-card {
+  background: var(--white);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.team-card img {
+  border-radius: 50%;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+}
+
+/* ===== CONTACT ===== */
+.contact {
+  padding: 4rem 2rem;
+  background: var(--white);
+  text-align: center;
+}
+
+.contact form {
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.contact input, .contact textarea {
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-family: var(--font);
+  resize: none;
+}
+
+/* ===== FOOTER ===== */
+footer {
+  background: var(--primary);
+  color: var(--white);
+  text-align: center;
+  padding: 1.2rem;
+  font-size: 0.9rem;
+}

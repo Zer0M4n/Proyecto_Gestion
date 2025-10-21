@@ -1,11 +1,105 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SDC</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Distribución Comunitario (SDC)</title>
+  <link rel="stylesheet" href="{% static 'landing/styles/style.css' %}">
 </head>
 <body>
-    <h1>Landing page de Sistema de Distribución Comunitario</h1>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="logo">🌍 SDC</div>
+    <nav>
+      <ul>
+        <li><a href="#inicio">Inicio</a></li>
+        <li><a href="#funciones">Funcionalidades</a></li>
+        <li><a href="#equipo">Equipo</a></li>
+        <li><a href="#contacto">Contacto</a></li>
+      </ul>
+    </nav>
+    <p onclick="window.location.href='{% url 'login' %}'" class="btn btn-outline">Iniciar Sesión</a>
+  </header>
+
+  <!-- HERO -->
+  <section id="inicio" class="hero">
+    <div class="hero-content">
+      <h1>Conectando Solidaridad y Tecnología</h1>
+      <p>El Sistema de Distribución Comunitario (SDC) digitaliza las donaciones y ayuda a comunidades vulnerables mediante una plataforma transparente y segura.</p>
+      <a href="#" class="btn btn-primary">Conocer más</a>
+    </div>
+  </section>
+
+  <!-- FUNCIONALIDADES -->
+  <section id="funciones" class="features">
+    <h2>¿Qué puedes hacer con SDC?</h2>
+    <div class="feature-grid">
+      <div class="feature-card">
+        <h3>🤝 Donaciones Seguras</h3>
+        <p>Realiza donaciones de manera confiable con trazabilidad total y control de entrega.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🏠 Gestión de Inventarios</h3>
+        <p>Administra almacenes y recursos de manera centralizada, evitando pérdidas y duplicados.</p>
+      </div>
+      <div class="feature-card">
+        <h3>📊 Reportes y Transparencia</h3>
+        <p>Obtén estadísticas claras sobre el impacto de las donaciones y el flujo de recursos.</p>
+      </div>
+      <div class="feature-card">
+        <h3>🚨 Moderación Activa</h3>
+        <p>Denuncia y gestiona contenido inapropiado para mantener la confianza en la comunidad.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- EQUIPO -->
+  <section id="equipo" class="team">
+    <h2>Equipo de Desarrollo</h2>
+    <div class="team-grid">
+      <div class="team-card">
+        <h4>Javier Machado</h4>
+        <p>Líder de Proyecto / QA</p>
+      </div>
+      <div class="team-card">
+        <h4>Omar Marcelino</h4>
+        <p>QA / Dev Backend</p>
+      </div>
+      <div class="team-card">
+        <h4>Cesar González</h4>
+        <p>Desarrollador Backend</p>
+      </div>
+      <div class="team-card">
+        <h4>Luis Jiménez</h4>
+        <p>Desarrollador Backend</p>
+      </div>
+      <div class="team-card">
+        <h4>José Bautista</h4>
+        <p>Fullstack / UX/UI</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO -->
+  <section id="contacto" class="contact">
+    <h2>Contáctanos</h2>
+    <form id="contact-form">
+      <input type="text" placeholder="Tu nombre" required>
+      <input type="email" placeholder="Correo electrónico" required>
+      <textarea placeholder="Tu mensaje..." required></textarea>
+      <button type="submit" class="btn btn-primary">Enviar mensaje</button>
+    </form>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <p>© 2025 Sistema de Distribución Comunitario (SDC) — Proyecto académico desarrollado por el equipo SDC.</p>
+    <p> Diseño preeliminar de la IA.</p>
+  </footer>
+
+  <script src="{% static 'landing/scripts/animation.js' %}"></script>
 </body>
 </html>
