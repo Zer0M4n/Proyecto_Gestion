@@ -1,0 +1,53 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'login/styles/register.css' %}">
+    <title>Registro | SDC</title>
+</head>
+<body>
+    <div class="main-container">
+        <div class="register-card">
+            <div class="tab-selector">
+                <button class="tab active" id="tab-persona">Persona</button>
+                <button class="tab" id="tab-institucion">Institución</button>
+            </div>
+
+            <!-- formulario para persona -->
+            <form id="form-persona" class="form active" method="POST">
+                {% csrf_token %}
+                <h2>Registro de Persona</h2>
+                <input type="text" name="nombre" placeholder="Nombre completo" required>
+                <input type="email" name="correo" placeholder="Correo electrónico" required>
+                <input type="password" name="password" placeholder="Contraseña" required>
+                <input type="password" name="confirmar_password" placeholder="Confirmar contraseña" required>
+                <input type="text" name="telefono" placeholder="Teléfono (opcional)">
+                <button type="submit" class="btn primary">Registrarse</button>
+            </form>
+
+            <!-- formulario para institucion -->
+            <form id="form-institucion" class="form" method="POST">
+                {% csrf_token %}
+                <h2>Registro de Institución</h2>
+                <input type="text" name="nombre_institucion" placeholder="Nombre de la institución" required>
+                <input type="email" name="correo_institucion" placeholder="Correo institucional" required>
+                <input type="password" name="password" placeholder="Contraseña" required>
+                <input type="password" name="confirmar_password" placeholder="Confirmar contraseña" required>
+                <input type="text" name="direccion" placeholder="Dirección" required>
+                <input type="text" name="telefono" placeholder="Teléfono de contacto">
+                <button type="submit" class="btn primary">Registrarse</button>
+            </form>
+
+            <div class="login-link">
+                <p>¿Ya tienes cuenta? <a href="{% url 'auth' %}">Inicia sesión aquí</a></p>
+            </div>
+        </div>
+    </div>
+    <p> Diseño preeliminar de la IA.</p>
+
+    <script src="{% static 'login/scripts/register-tab-logic.js' %}"></script>
+</body>
+</html>

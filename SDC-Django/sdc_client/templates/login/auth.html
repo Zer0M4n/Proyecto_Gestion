@@ -1,0 +1,31 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'login/styles/auth.css' %}">
+    <title>Iniciar Sesión | SDC</title>
+</head>
+<body>
+    <div class="main-container">
+        <div class="login-card">
+            <h1>Bienvenido a SDC</h1>
+            <p class="subtitle">Sistema de Distribución Comunitario</p>
+
+            <form method="POST">
+                {% csrf_token %} <!-- Esto lo puso la AI, luego investigo que es... -->
+                <input type="email" name="email" placeholder="Correo electrónico" required>
+                <input type="password" name="password" placeholder="Contraseña" required>
+                <button type="submit" class="btn primary">Iniciar Sesión</button>
+            </form>
+
+            <div class="register-link">
+                <p>¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a></p>
+            </div>
+        </div>
+    </div>
+    <p> Diseño preeliminar de la IA.</p>
+</body>
+</html>

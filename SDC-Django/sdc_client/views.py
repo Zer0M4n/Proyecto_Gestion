@@ -5,11 +5,14 @@ from django.shortcuts import render
 def home(request):
     return render(request, 'landing/home.html')
 
-def personal_login(request):
-    return render(request, 'login/personal_login.html')
+def login(request):
+    return render(request, 'login/login.html')
 
-def ong_login(request):
-    return render(request, 'login/ong_login.html')
+def register(request):
+    return render(request, 'login/register.html')
+
+def auth(request):
+    return render(request, 'login/auth.html')
 
 def feed(request):
     return render(request, 'posts/feed.html')
