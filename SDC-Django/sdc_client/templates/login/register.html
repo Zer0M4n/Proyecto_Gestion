@@ -12,32 +12,184 @@
     <div class="main-container">
         <div class="register-card">
             <div class="tab-selector">
-                <button class="tab active" id="tab-persona">Persona</button>
-                <button class="tab" id="tab-institucion">Institución</button>
+                <button class="tab {% if not institution_form.errors %}active{% endif %}" id="tab-person">Persona</button>
+                <button class="tab {% if institution_form.errors %}active{% endif %}" id="tab-institution">Institución</button>
             </div>
 
-            <!-- formulario para persona -->
-            <form id="form-persona" class="form active" method="POST">
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <p class="message {{ message.tags }}">{{ message }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <form id="form-person" class="form {% if not institution_form.errors %}active{% endif %}" method="POST" novalidate>
                 {% csrf_token %}
                 <h2>Registro de Persona</h2>
-                <input type="text" name="nombre" placeholder="Nombre completo" required>
-                <input type="email" name="correo" placeholder="Correo electrónico" required>
-                <input type="password" name="password" placeholder="Contraseña" required>
-                <input type="password" name="confirmar_password" placeholder="Confirmar contraseña" required>
-                <input type="text" name="telefono" placeholder="Teléfono (opcional)">
+                
+                {% if person_form.non_field_errors %}
+                    <div class="form-error-general">
+                        {% for error in person_form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-field">
+                    {{ person_form.person_first_name.label_tag }}
+                    {{ person_form.person_first_name }}
+                    <small class="feedback-msg" id="fname-feedback"></small>
+                    <div class="form-error">{{ person_form.person_first_name.errors }}</div>
+                </div>
+                
+                <div class="form-field">
+                    {{ person_form.person_middle_name.label_tag }}
+                    {{ person_form.person_middle_name }}
+                    <small class="feedback-msg" id="mname-feedback"></small>
+                    <div class="form-error">{{ person_form.person_middle_name.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ person_form.person_first_surname.label_tag }}
+                    {{ person_form.person_first_surname }}
+                    <small class="feedback-msg" id="fsurname-feedback"></small>
+                    <div class="form-error">{{ person_form.person_first_surname.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ person_form.person_second_surname.label_tag }}
+                    {{ person_form.person_second_surname }}
+                    <small class="feedback-msg" id="ssurname-feedback"></small>
+                    <div class="form-error">{{ person_form.person_second_surname.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ person_form.person_curp.label_tag }}
+                    {{ person_form.person_curp }}
+                    <small class="feedback-msg" id="curp-feedback"></small>
+                    <div class="form-error">{{ person_form.person_curp.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ person_form.person_city.label_tag }}
+                    {{ person_form.person_city }}
+                    <div class="form-error">{{ person_form.person_city.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ person_form.person_state.label_tag }}
+                    {{ person_form.person_state }}
+                    <div class="form-error">{{ person_form.person_state.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ person_form.person_email.label_tag }}
+                    {{ person_form.person_email }}
+                    <small class="feedback-msg" id="email-feedback"></small>
+                    <div class="form-error">{{ person_form.person_email.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ person_form.person_phone.label_tag }}
+                    {{ person_form.person_phone }}
+                    <small class="feedback-msg" id="phone-feedback"></small>
+                    <div class="form-error">{{ person_form.person_phone.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ person_form.person_password.label_tag }}
+                    {{ person_form.person_password }}
+                    <div class="password-strength" id="password-strength-bar">
+                        <div class="bar"></div>
+                    </div>
+                    <small class="feedback-msg" id="password-feedback"></small>
+                    <div class="form-error">{{ person_form.person_password.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ person_form.confirm_person_password.label_tag }}
+                    {{ person_form.confirm_person_password }}
+                    <small class="feedback-msg" id="confirm-password-feedback"></small>
+                    <div class="form-error">{{ person_form.confirm_person_password.errors }}</div>
+                </div>
+
+                <div class="form-field select-wrapper">
+                    {{ person_form.user_type.label_tag }}
+                    {{ person_form.user_type }}
+                    <div class="form-error">{{ person_form.user_type.errors }}</div>
+                </div>
+
                 <button type="submit" class="btn primary">Registrarse</button>
             </form>
 
-            <!-- formulario para institucion -->
-            <form id="form-institucion" class="form" method="POST">
+            <form id="form-institution" class="form {% if institution_form.errors %}active{% endif %}" method="POST" novalidate>
                 {% csrf_token %}
                 <h2>Registro de Institución</h2>
-                <input type="text" name="nombre_institucion" placeholder="Nombre de la institución" required>
-                <input type="email" name="correo_institucion" placeholder="Correo institucional" required>
-                <input type="password" name="password" placeholder="Contraseña" required>
-                <input type="password" name="confirmar_password" placeholder="Confirmar contraseña" required>
-                <input type="text" name="direccion" placeholder="Dirección" required>
-                <input type="text" name="telefono" placeholder="Teléfono de contacto">
+
+                {% if institution_form.non_field_errors %}
+                    <div class="form-error-general">
+                        {% for error in institution_form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-field">
+                    {{ institution_form.institution_name.label_tag }}
+                    {{ institution_form.institution_name }}
+                    <div class="form-error">{{ institution_form.institution_name.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ institution_form.institution_rfc.label_tag }}
+                    {{ institution_form.institution_rfc }}
+                    <small class="feedback-msg" id="rfc-feedback"></small>
+                    <div class="form-error">{{ institution_form.institution_rfc.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ institution_form.institution_city.label_tag }}
+                    {{ institution_form.institution_city }}
+                    <div class="form-error">{{ institution_form.institution_city.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ institution_form.institution_state.label_tag }}
+                    {{ institution_form.institution_state }}
+                    <div class="form-error">{{ institution_form.institution_state.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ institution_form.institution_address.label_tag }}
+                    {{ institution_form.institution_address }}
+                    <div class="form-error">{{ institution_form.institution_address.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ institution_form.institution_email.label_tag }}
+                    {{ institution_form.institution_email }}
+                    <small class="feedback-msg" id="inst-email-feedback"></small>
+                    <div class="form-error">{{ institution_form.institution_email.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ institution_form.institution_password.label_tag }}
+                    {{ institution_form.institution_password }}
+                    <div class="password-strength" id="inst-password-strength-bar">
+                        <div class="bar"></div>
+                    </div>
+                    <small class="feedback-msg" id="inst-password-feedback"></small>
+                    <div class="form-error">{{ institution_form.institution_password.errors }}</div>
+                </div>
+
+                <div class="form-field">
+                    {{ institution_form.confirm_institution_password.label_tag }}
+                    {{ institution_form.confirm_institution_password }}
+                    <small class="feedback-msg" id="inst-confirm-password-feedback"></small>
+                    <div class="form-error">{{ institution_form.confirm_institution_password.errors }}</div>
+                </div>
+                
                 <button type="submit" class="btn primary">Registrarse</button>
             </form>
 
@@ -49,5 +201,6 @@
     <p> Diseño preeliminar de la IA.</p>
 
     <script src="{% static 'login/scripts/register-tab-logic.js' %}"></script>
+    <script src="{% static 'login/scripts/register-validation.js' %}"></script>
 </body>
 </html>
