@@ -12,32 +12,44 @@
     <div class="main-container">
         <div class="register-card">
             <div class="tab-selector">
-                <button class="tab active" id="tab-persona">Persona</button>
-                <button class="tab" id="tab-institucion">Institución</button>
+                <button class="tab active" id="tab-person">Persona</button>
+                <button class="tab" id="tab-institution">Institución</button>
             </div>
 
             <!-- formulario para persona -->
-            <form id="form-persona" class="form active" method="POST">
+            <form id="form-person" class="form active" method="POST">
                 {% csrf_token %}
                 <h2>Registro de Persona</h2>
-                <input type="text" name="nombre" placeholder="Nombre completo" required>
-                <input type="email" name="correo" placeholder="Correo electrónico" required>
-                <input type="password" name="password" placeholder="Contraseña" required>
-                <input type="password" name="confirmar_password" placeholder="Confirmar contraseña" required>
-                <input type="text" name="telefono" placeholder="Teléfono (opcional)">
+                <input type="text" name="person_first_name" placeholder="Primer nombre" required>
+                <input type="text" name="person_middle_name" placeholder="Segundo nombre" >
+                <input type="text" name="person_first_surname" placeholder="Primer apellido" required>
+                <input type="text" name="person_second_surname" placeholder="Segundo apellido" required>
+                <input type="text" name="person_curp" placeholder="CURP" required>
+                <input type="text" name="person_city" placeholder="Ciudad" required>
+                <input type="text" name="person_state" placeholder="Estado" required>
+                <input type="email" name="person_email" placeholder="Correo electrónico" required>
+                <input type="text" name="person_phone" placeholder="Teléfono" required>
+                <input type="password" name="person_password" placeholder="Contraseña" required>
+                <input type="password" name="confirm_person_password" placeholder="Confirmar contraseña" required>
+                <select name="user_type">
+                    <option value="donee">Donatario</option>
+                    <option value="donor">Donador</option>
+                </select>
                 <button type="submit" class="btn primary">Registrarse</button>
             </form>
 
             <!-- formulario para institucion -->
-            <form id="form-institucion" class="form" method="POST">
+            <form id="form-institution" class="form" method="POST">
                 {% csrf_token %}
                 <h2>Registro de Institución</h2>
-                <input type="text" name="nombre_institucion" placeholder="Nombre de la institución" required>
-                <input type="email" name="correo_institucion" placeholder="Correo institucional" required>
-                <input type="password" name="password" placeholder="Contraseña" required>
-                <input type="password" name="confirmar_password" placeholder="Confirmar contraseña" required>
-                <input type="text" name="direccion" placeholder="Dirección" required>
-                <input type="text" name="telefono" placeholder="Teléfono de contacto">
+                <input type="text" name="institution_name" placeholder="Nombre de la institución" required>
+                <input type="text" name="institution_rfc" placeholder="RFC" required>
+                <input type="text" name="institution_city" placeholder="Ciudad" required>
+                <input type="text" name="institution_state" placeholder="Estado" required>
+                <input type="text" name="institution_address" placeholder="Dirección" required>
+                <input type="email" name="institution_email" placeholder="Correo institucional" required>
+                <input type="password" name="institution_password" placeholder="Contraseña" required>
+                <input type="password" name="confirm_institution_password" placeholder="Confirmar contraseña" required>
                 <button type="submit" class="btn primary">Registrarse</button>
             </form>
 
