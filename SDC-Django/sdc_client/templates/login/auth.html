@@ -14,12 +14,13 @@
             <h1>Bienvenido a SDC</h1>
             <p class="subtitle">Sistema de Distribución Comunitario</p>
 
-            <form method="POST">
-                {% csrf_token %} <!-- Esto lo puso la AI, luego investigo que es... -->
-                <input type="email" name="email" placeholder="Correo electrónico" required>
-                <input type="password" name="password" placeholder="Contraseña" required>
+            <form method="POST" id="login-form">
+            {% csrf_token %}
+                <input type="email" name="email" placeholder="Correo electrónico" required id="email-input">
+                <input type="password" name="password" placeholder="Contraseña" required id="password-input">
                 <button type="submit" class="btn primary">Iniciar Sesión</button>
             </form>
+            <p id="error-message" style="color: #ff8a80; margin-top: 15px;"></p>
 
             <div class="register-link">
                 <p>¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a></p>
@@ -27,5 +28,7 @@
         </div>
     </div>
     <p> Diseño preeliminar de la IA.</p>
+
+    <script src="{% static 'login/scripts/login-logic.js' %}"></script>
 </body>
 </html>

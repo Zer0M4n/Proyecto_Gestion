@@ -16,7 +16,7 @@ def validate_phone(value):
 
 def validate_curp(value):
     """Valida el formato de CURP."""
-    curp_regex = r'^[A-Z]{1}[AEIOU]{1}[A-Z]{2}[0-9]{2}(0[1-9]|1[0-2])(0[1-9]|[12][0-9]|3[01])[HM]{1}(AS|BC|BS|CC|CS|CH|CL|CM|DF|DG|GT|GR|HG|JC|MC|MN|MS|NT|NL|OC|PL|QT|QR|SP|SL|SR|TC|TS|TL|VZ|YN|ZS){1}[B-DF-HJ-NP-TV-Z]{3}[A-Z0-9]{1}[0-9]{1}$'
+    curp_regex = r'^[A-Za-z]{4}\d{6}[HhMm]{1}[A-Za-z]{2}[A-Za-z]{3}[A-Za-z0-9]{2}$'
     if not re.match(curp_regex, value.upper()):
         raise ValidationError('El formato del CURP no es válido.')
 
