@@ -12,7 +12,7 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     # Vistas de páginas
     path('', views.home, name='home'),
-    path('login-page/', views.login, name='login'), # Página de 'primer login'
+    path('login-page/', views.login_page, name='login'), # Página de 'primer login'
     path('register/', views.register, name='register'),
     path('auth/', views.auth, name='auth'), # Página de 'auth' (formulario)
     
@@ -24,10 +24,9 @@ urlpatterns = [
 
     # --- API Endpoints para Autenticación ---
     
-    # 1. Tu vista de Login personalizada
-    # La plantilla 'auth.html' debe enviar su POST a esta URL
+    # Endpoint login
     path('api/login/', views.api_login_view, name='api_login'), 
     
-    # 2. Endpoints de Simple JWT (para refrescar tokens)
+    # Endpoints de Simple JWT (para refrescar tokens)
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

@@ -1,11 +1,72 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Inicio</title>
+    <link rel="stylesheet" href="{% static 'posts/styles/posts.css' %}">
+    <title>Inicio | Donador</title>
 </head>
-<body>
-    <h1>Donor feed</h1>
+<body class="post-feed-body">
+
+    <div class="feed-container">
+        <div class="feed-header">
+            <h1>Bienvenido, Donador</h1>
+            <a href="{% url 'create_post' %}" class="btn-create">Crear Oferta</a>
+        </div>
+
+        <section class="post-section">
+            <h2>Mis Ofertas Activas</h2>
+            {% for post in my_posts %}
+                <div class="post-card">
+                    <div class="post-meta">
+                        <span class="meta-tag status">{{ post.get_status_display }}</span>
+                    </div>
+                    <h3>{{ post.title }}</h3>
+                    <p>{{ post.description }}</p>
+                    <div class="post-meta">
+                        <span class="meta-tag">Categoría: {{ post.category.name }}</span>
+                        <span class="meta-tag">Cantidad: {{ post.quantity }}</span>
+                    </div>
+                    </div>
+            {% empty %}
+                <p>No tienes ofertas activas.</p>
+            {% endfor %}
+        </section>
+
+        <hr style="border-color: rgba(255,255,255,0.1); margin: 30px 0;">
+
+        <section class="post-section">
+            <h2>{{ feed_title }}</h2>
+            {% for post in feed_posts %}
+                <div class="post-card">
+                    <div class="post-meta">
+                        <span class="meta-tag type-request">{{ post.get_post_type_display }}</span>
+                        {% if post.is_campaign %}
+                            <span class="meta-tag status">CAMPAÑA</span>
+                        {% endif %}
+                    </div>
+                    <h3>{{ post.title }}</h3>
+                    <p>{{ post.description }}</p>
+                    <div class="post-meta">
+                        <span class="meta-tag">Publicado por: {{ post.author.email }}</span>
+                        <span class="meta-tag">Categoría: {{ post.category.name }}</span>
+                        <span class="meta-tag">Solicita: {{ post.quantity }}</span>
+                    </div>
+                    
+                    <div class="post-interaction">
+                        <form method="POST" action=""> {# TODO: Crear URL para 'Transaction' #}
+                            {% csrf_token %}
+                            <input type="number" name="quantity_committed" placeholder="Cantidad a donar" min="0.01" step="0.01">
+                            <button type="submit">¡Quiero Donar!</button>
+                        </form>
+                    </div>
+                </div>
+            {% empty %}
+                <p>No hay solicitudes de ayuda activas en este momento.</p>
+            {% endfor %}
+        </section>
+    </div>
+
 </body>
 </html>

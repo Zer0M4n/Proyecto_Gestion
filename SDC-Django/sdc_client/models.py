@@ -47,13 +47,11 @@ class CustomUserManager(BaseUserManager):
 # --- Modelos para Status ---
 
 class Status(models.Model):
-    id = models.SmallIntegerField(primary_key=True)
+    
     name = models.CharField(max_length=255, unique=True)
     description = models.CharField(max_length=255)
 
     class Meta:
-        managed = False  # Django no debe crear ni borrar esta tabla
-        db_table = 'public"."status' # Apunta a la tabla existente
         verbose_name_plural = "Status"
 
     def __str__(self):
@@ -67,8 +65,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     creation_date = models.DateTimeField(default=timezone.now)
     phone = models.CharField(max_length=20, unique=True)
     
-    # Relación con Status
-    status = models.ForeignKey(Status, on_delete=models.PROTECT, db_column='status')
+    status = models.ForeignKey(Status, on_delete=models.PROTECT)
 
     # Campos requeridos por Django Admin
     is_staff = models.BooleanField(default=False)
@@ -82,10 +79,6 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
 
     # Asignamos el Manager
     objects = CustomUserManager()
-
-    class Meta:
-        managed = False # Django no debe crear ni borrar esta tabla
-        db_table = 'public"."users' # Apunta a la tabla existente
 
     def __str__(self):
         return self.email
@@ -102,12 +95,7 @@ class Donee(models.Model):
     city = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
     
-    # La relación clave con el Usuario
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, db_column='user')
-
-    class Meta:
-        managed = False # Django no debe crear ni borrar esta tabla
-        db_table = 'public"."donees' # Apunta a la tabla existente
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.first_name} {self.first_surname}"
@@ -122,12 +110,7 @@ class Donor(models.Model):
     city = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
     
-    # La relación clave con el Usuario
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, db_column='user')
-
-    class Meta:
-        managed = False # Django no debe crear ni borrar esta tabla
-        db_table = 'public"."donors' # Apunta a la tabla existente
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.first_name} {self.first_surname}"
@@ -140,12 +123,7 @@ class Institution(models.Model):
     state = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
     
-    # La relación clave con el Usuario
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, db_column='user')
-
-    class Meta:
-        managed = False # Django no debe crear ni borrar esta tabla
-        db_table = 'public"."institutions' # Apunta a la tabla existente
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name

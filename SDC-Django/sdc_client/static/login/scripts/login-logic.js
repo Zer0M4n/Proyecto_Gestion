@@ -9,7 +9,7 @@ document.getElementById('login-form').addEventListener('submit', async function(
             errorP.textContent = ''; // Limpia errores previos
 
             try {
-                const response = await fetch('/api/login/', { // Llama a tu nueva API
+                const response = await fetch('/api/login/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

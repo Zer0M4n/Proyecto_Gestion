@@ -4,13 +4,14 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.db import transaction # Para asegurar que User y Perfil se creen juntos
 from django.contrib.auth import authenticate, login # Para Login
+from django.contrib.auth.decorators import login_required # Decorador para proteger vistas
 from django.http import JsonResponse
 import json
 
-# Importa tus formularios
-from .forms import PersonRegistrationForm, InstitutionRegistrationForm
-# Importa tus nuevos modelos
-from .models import CustomUser, Donee, Donor, Institution
+# --- FORMULARIOS ---
+from .forms import PersonRegistrationForm, InstitutionRegistrationForm, PostForm
+# --- MODELOS ---
+from .models import CustomUser, Donee, Donor, Institution, Post, Category
 
 # Importaciones para JWT y Vistas de API (para el login)
 from rest_framework.decorators import api_view, permission_classes
@@ -23,26 +24,113 @@ from rest_framework_simplejwt.tokens import RefreshToken
 def home(request):
     return render(request, 'landing/home.html')
 
-def login(request):
-    # Esta vista ahora solo muestra la página 'login.html'
+def login_page(request):
     return render(request, 'login/login.html')
 
 def auth(request):
-    # Esta vista ahora solo muestra la página 'auth.html'
     return render(request, 'login/auth.html')
 
+@login_required
 def create_post(request):
-    return render(request, 'posts/create_post.html')
+    if request.method == 'POST':
+        # --- Pasar 'user=request.user' al formulario ---
+        form = PostForm(request.POST, user=request.user)
+        
+        if form.is_valid():
+            post = form.save(commit=False)
+            post.author = request.user
+            redirect_url = 'home' 
 
+            try:
+                if hasattr(request.user, 'donee'):
+                    # REGLA: Donatario.
+                    post.post_type = Post.PostType.REQUEST
+                    post.is_campaign = False 
+                    redirect_url = 'donee_feed'
+
+                elif hasattr(request.user, 'donor'):
+                    # REGLA: Donador.
+                    post.post_type = Post.PostType.OFFER
+                    post.is_campaign = False
+                    redirect_url = 'donor_feed'
+
+                elif hasattr(request.user, 'institution'):
+                    # REGLA: Institución.
+                    redirect_url = 'institution_feed'
+                
+                else:
+                    messages.error(request, 'Error: Tu perfil de usuario no está completo.')
+                    return redirect('home')
+
+                post.save() # Guardar el objeto 'post' en la BBDD
+                messages.success(request, '¡Publicación creada con éxito!')
+                return redirect(redirect_url) 
+
+            except Exception as e:
+                form.add_error(None, f"Error al procesar el tipo de usuario: {e}")
+
+    else:
+        form = PostForm(user=request.user)
+
+    context = {
+        'form': form
+    }
+    return render(request, 'posts/create_post.html', context)
+
+@login_required
 def donee_feed(request):
-    return render(request, 'posts/donee_feed.html')
+    my_requests = Post.objects.filter(
+        author=request.user, 
+        post_type=Post.PostType.REQUEST
+    ).order_by('-created_at')
+    
+    available_offers = Post.objects.filter(
+        post_type=Post.PostType.OFFER, 
+        status=Post.PostStatus.ACTIVE
+    ).exclude(author=request.user).order_by('-created_at')
 
+    context = {
+        'my_posts': my_requests,
+        'feed_posts': available_offers,
+        'feed_title': 'Ofertas Disponibles'
+    }
+    return render(request, 'posts/donee_feed.html', context)
+
+
+@login_required
 def donor_feed(request):
-    return render(request, 'posts/donor_feed.html')
+    my_offers = Post.objects.filter(
+        author=request.user, 
+        post_type=Post.PostType.OFFER
+    ).order_by('-created_at')
 
+    available_requests = Post.objects.filter(
+        post_type=Post.PostType.REQUEST, 
+        status=Post.PostStatus.ACTIVE
+    ).exclude(author=request.user).order_by('-created_at')
+
+    context = {
+        'my_posts': my_offers,
+        'feed_posts': available_requests,
+        'feed_title': 'Solicitudes de Ayuda'
+    }
+    return render(request, 'posts/donor_feed.html', context)
+
+
+@login_required
 def institution_feed(request):
-    return render(request, 'posts/institution_feed.html')
+    my_posts = Post.objects.filter(author=request.user).order_by('-created_at')
+    
+    all_other_posts = Post.objects.filter(
+        status=Post.PostStatus.ACTIVE
+    ).exclude(author=request.user).order_by('-created_at')
 
+    context = {
+        'my_posts': my_posts,
+        'feed_posts': all_other_posts,
+        'feed_title': 'Actividad de la Comunidad'
+    }
+    return render(request, 'posts/institution_feed.html', context)
 
 # --- Lógica de Registro (Backend) ---
 
@@ -60,16 +148,14 @@ def register(request):
                 # Usamos una transacción para asegurar que ambos se creen
                 try:
                     with transaction.atomic():
-                        # 1. Crear el CustomUser
-                        # Usamos nuestro CustomUserManager (create_user)
-                        # Esto se encarga de HASHEAR la contraseña
+                        # Crear el CustomUser
                         user = CustomUser.objects.create_user(
                             email=data['person_email'],
                             phone=data['person_phone'],
                             password=data['person_password']
                         )
                         
-                        # 2. Crear el Perfil (Donee o Donor)
+                        # Crear el Perfil (Donee o Donor)
                         profile_data = {
                             'user': user,
                             'first_name': data['person_first_name'],
@@ -92,7 +178,7 @@ def register(request):
                     return redirect('auth') # Redirigir a la página de login
 
                 except Exception as e:
-                    # Captura errores (ej. email duplicado)
+                    # Captura errores
                     messages.error(request, f'Error al crear el usuario: {e}')
 
         # --- Lógica de Registro de Institución ---
@@ -103,16 +189,14 @@ def register(request):
 
                 try:
                     with transaction.atomic():
-                        # 1. Crear el CustomUser para la institución
+                        # Crear el CustomUser para la institución
                         user = CustomUser.objects.create_user(
                             email=data['institution_email'],
-                            # Tu schema no tiene 'phone' para institución
-                            # Asumiremos un valor temporal o ajusta el modelo
                             phone=data['institution_rfc'], # Usar RFC como fono temporal
                             password=data['institution_password']
                         )
                         
-                        # 2. Crear el Perfil de Institución
+                        # Crear el Perfil de Institución
                         Institution.objects.create(
                             user=user,
                             name=data['institution_name'],
@@ -137,8 +221,6 @@ def register(request):
 
 
 # --- Lógica de Login (Backend) con JWT ---
-# Esta vista reemplazará tu antigua vista 'auth'
-# Se convertirá en un endpoint de API que devuelve un token
 
 @api_view(['POST']) 
 @permission_classes([AllowAny]) 
@@ -188,4 +270,66 @@ def api_login_view(request):
         }, status=200)
     else:
         # Autenticación fallida
+        return JsonResponse({'error': 'Credenciales inválidas'}, status=401)
+    
+@api_view(['POST']) 
+@permission_classes([AllowAny]) 
+def api_login_view(request):
+    
+    email = request.data.get('email')
+    password = request.data.get('password')
+
+    if not email or not password:
+        return JsonResponse({'error': 'Email y contraseña requeridos'}, status=400)
+
+    user = authenticate(request, email=email, password=password)
+
+    if user is not None:
+        login(request, user)
+        
+        refresh = RefreshToken.for_user(user)
+        
+        user_type = 'unknown'
+        redirect_url = '/'
+
+        try:
+            # Intenta acceder al perfil de Donador.
+            if user.donor:
+                user_type = 'donor'
+                redirect_url = '/donor_feed'
+        except Donor.DoesNotExist:
+            # Si da error, no es un Donador. Sigue al siguiente.
+            try:
+                # Intenta acceder al perfil de Donatario.
+                if user.donee:
+                    user_type = 'donee'
+                    redirect_url = '/donee_feed'
+            except Donee.DoesNotExist:
+                # Si da error, no es Donatario. Sigue al siguiente.
+                try:
+                    # Intenta acceder al perfil de Institución.
+                    if user.institution:
+                        user_type = 'institution'
+                        redirect_url = '/institution_feed'
+                except Institution.DoesNotExist:
+                    # Si da error, no es ninguno.
+                    pass
+        except Exception as e:
+            # Captura cualquier otro error (ej. si olvidaste importar un modelo)
+            return JsonResponse({'error': f'Error de servidor inesperado: {e}'}, status=500)
+        
+        # 4. Devuelve la respuesta exitosa
+        return JsonResponse({
+            'message': 'Login exitoso',
+            'refresh': str(refresh),
+            'access': str(refresh.access_token),
+            'user': {
+                'id': user.id,
+                'email': user.email,
+                'user_type': user_type,
+                'redirect_url': redirect_url
+            }
+        }, status=200)
+    else:
+        # Autenticación fallida (contraseña incorrecta)
         return JsonResponse({'error': 'Credenciales inválidas'}, status=401)
