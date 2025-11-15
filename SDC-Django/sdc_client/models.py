@@ -1,13 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
+from django.conf import settings
 
 # Create your models here.
 
 
-# --- 1. Manager para tu Usuario Personalizado ---
-# Necesitamos esto para decirle a Django cómo crear usuarios
-# (ej. 'create_user' y 'create_superuser' para la consola)
+# --- Manager para Usuario Personalizado ---
 
 class CustomUserManager(BaseUserManager):
     def create_user(self, email, phone, password=None, **extra_fields):
@@ -18,8 +17,7 @@ class CustomUserManager(BaseUserManager):
             raise ValueError('El Email debe ser proporcionado')
         
         email = self.normalize_email(email)
-        # Asignamos un status por defecto, '1' (ej. 'Activo')
-        # Asume que ya creaste este status en tu tabla 'status' de Supabase
+        # Se le asigna un states por defecto
         extra_fields.setdefault('status_id', 1) 
         
         user = self.model(email=email, phone=phone, **extra_fields)
@@ -36,7 +34,7 @@ class CustomUserManager(BaseUserManager):
         """
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('status_id', 1) # Asume 1 = Activo
+        extra_fields.setdefault('status_id', 1)
 
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
@@ -46,37 +44,32 @@ class CustomUserManager(BaseUserManager):
         return self.create_user(email, phone, password, **extra_fields)
 
 
-# --- 2. Modelos de la Base de Datos ---
-# Basados en tu esquema de Supabase
+# --- Modelos para Status ---
 
 class Status(models.Model):
-    # Tu esquema usa 'smallint' para ID, pero BigAutoField es el 
-    # estándar de Django y es compatible.
-    id = models.SmallIntegerField(primary_key=True)
+    
     name = models.CharField(max_length=255, unique=True)
     description = models.CharField(max_length=255)
 
     class Meta:
-        managed = False  # Django no debe crear ni borrar esta tabla
-        db_table = 'public"."status' # Apunta a tu tabla existente
         verbose_name_plural = "Status"
 
     def __str__(self):
         return self.name
 
+# --- Modelo para usuario ---
+
 class CustomUser(AbstractBaseUser, PermissionsMixin):
-    # Omitimos 'id' para que Django use 'BigAutoField'
     email = models.EmailField(max_length=255, unique=True)
-    password = models.CharField(max_length=255) # Django guardará el hash aquí
+    password = models.CharField(max_length=255)
     creation_date = models.DateTimeField(default=timezone.now)
     phone = models.CharField(max_length=20, unique=True)
     
-    # Relación con Status
-    status = models.ForeignKey(Status, on_delete=models.PROTECT, db_column='status')
+    status = models.ForeignKey(Status, on_delete=models.PROTECT)
 
     # Campos requeridos por Django Admin
     is_staff = models.BooleanField(default=False)
-    is_active = models.BooleanField(default=True) # Lo manejamos con 'status' pero es útil
+    is_active = models.BooleanField(default=True)
 
     # Le decimos a Django que use 'email' para el login
     USERNAME_FIELD = 'email'
@@ -87,17 +80,12 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
     # Asignamos el Manager
     objects = CustomUserManager()
 
-    class Meta:
-        managed = False # Django no debe crear ni borrar esta tabla
-        db_table = 'public"."users' # Apunta a tu tabla existente
-
     def __str__(self):
         return self.email
 
-# --- 3. Modelos de Perfiles ---
+# --- Modelos de Perfiles ---
 
 class Donee(models.Model):
-    # Omitimos 'id'
     created_at = models.DateTimeField(default=timezone.now)
     first_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
@@ -107,18 +95,12 @@ class Donee(models.Model):
     city = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
     
-    # La relación clave con el Usuario
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, db_column='user')
-
-    class Meta:
-        managed = False
-        db_table = 'public"."donees'
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.first_name} {self.first_surname}"
 
 class Donor(models.Model):
-    # Omitimos 'id'
     created_at = models.DateTimeField(default=timezone.now)
     first_name = models.CharField(max_length=255)
     middle_name = models.CharField(max_length=255, blank=True, null=True)
@@ -128,18 +110,12 @@ class Donor(models.Model):
     city = models.CharField(max_length=255)
     state = models.CharField(max_length=255)
     
-    # La relación clave con el Usuario
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, db_column='user')
-
-    class Meta:
-        managed = False
-        db_table = 'public"."donors'
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return f"{self.first_name} {self.first_surname}"
 
 class Institution(models.Model):
-    # Omitimos 'id'
     created_at = models.DateTimeField(default=timezone.now)
     name = models.CharField(max_length=255, unique=True)
     rfc = models.CharField(max_length=13, unique=True)
@@ -147,12 +123,110 @@ class Institution(models.Model):
     state = models.CharField(max_length=255)
     address = models.CharField(max_length=255)
     
-    # La relación clave con el Usuario
-    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, db_column='user')
-
-    class Meta:
-        managed = False
-        db_table = 'public"."institutions'
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.name
+    
+# --- Modelo de publicaciones ---
+
+class Category(models.Model):
+    """
+    Categorías para las donaciones (ej. Comida, Ropa, Muebles).
+    """
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True, null=True)
+
+    class Meta:
+        verbose_name_plural = "Categories"
+
+    def __str__(self):
+        return self.name
+
+class Post(models.Model):
+    """
+    La publicación central (Solicitud o Donación).
+    """
+    class PostType(models.TextChoices):
+        REQUEST = 'REQUEST', 'Solicitud' # Alguien necesita algo
+        OFFER = 'OFFER', 'Oferta'       # Alguien ofrece algo
+
+    class PostStatus(models.TextChoices):
+        ACTIVE = 'ACTIVE', 'Activa'
+        IN_PROGRESS = 'IN_PROGRESS', 'En Progreso'
+        COMPLETED = 'COMPLETED', 'Completada'
+        CANCELLED = 'CANCELLED', 'Cancelada'
+
+    # --- Campos Principales ---
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='posts'
+    )
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    category = models.ForeignKey(
+        Category, 
+        on_delete=models.PROTECT # Evita borrar categorías en uso
+    )
+    quantity = models.DecimalField(
+        max_digits=10, 
+        decimal_places=2, 
+        default=1.0
+    )
+    
+    # --- Campos de Lógica ---
+    post_type = models.CharField(
+        max_length=10, 
+        choices=PostType.choices
+    )
+    status = models.CharField(
+        max_length=20, 
+        choices=PostStatus.choices, 
+        default=PostStatus.ACTIVE
+    )
+    
+    # --- Banderas de Lógica de Negocio ---
+    is_campaign = models.BooleanField(
+        default=False, 
+        help_text="Marcar si es una campaña masiva (solo Instituciones)"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"[{self.get_post_type_display()}] {self.title} por {self.author.email}"
+
+
+class Transaction(models.Model):
+    """
+    Registra la interacción de un usuario con un Post.
+    """
+    class TransactionStatus(models.TextChoices):
+        PENDING = 'PENDING', 'Pendiente'
+        APPROVED = 'APPROVED', 'Aprobada'
+        REJECTED = 'REJECTED', 'Rechazada'
+        COMPLETED = 'COMPLETED', 'Completada'
+
+    post = models.ForeignKey(
+        Post, 
+        on_delete=models.CASCADE, 
+        related_name='transactions'
+    )
+    # El usuario que interactúa (NO el autor del post)
+    participant = models.ForeignKey(
+        settings.AUTH_USER_MODEL, 
+        on_delete=models.CASCADE, 
+        related_name='interactions'
+    ) 
+    quantity_committed = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(
+        max_length=20, 
+        choices=TransactionStatus.choices, 
+        default=TransactionStatus.PENDING
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.participant.email} -> {self.post.title}"

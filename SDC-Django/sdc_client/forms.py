@@ -1,6 +1,7 @@
 import re
 from django import forms
 from django.core.exceptions import ValidationError
+from .models import Post, Category
 
 # --- Funciones de Validación Reutilizables ---
 
@@ -45,12 +46,6 @@ class PersonRegistrationForm(forms.Form):
     def clean_person_email(self):
         """Valida que el email no esté ya en uso."""
         email = self.cleaned_data.get('person_email')
-        # Aquí deberías importar tu modelo de Usuario (ej. User de auth)
-        # from django.contrib.auth.models import User
-        # if User.objects.filter(email=email).exists():
-        #     raise ValidationError("Este correo electrónico ya está registrado.")
-        # Como tu models.py está vacío, esta lógica está comentada.
-        # ¡Descomenta y ajusta cuando tengas tu modelo de usuario!
         return email
 
     def clean(self):
@@ -86,7 +81,6 @@ class InstitutionRegistrationForm(forms.Form):
     def clean_institution_email(self):
         """Valida que el email no esté ya en uso."""
         email = self.cleaned_data.get('institution_email')
-        # Similar al otro form, aquí va tu lógica de validación de email existente
         return email
 
     def clean(self):
@@ -108,3 +102,78 @@ class InstitutionRegistrationForm(forms.Form):
                 self.add_error('institution_password', 'La contraseña debe contener al menos un número.')
         
         return cleaned_data
+
+# --- Formulario de Publicaciones ---
+
+class PostForm(forms.ModelForm):
+    """
+    Formulario para crear nuevas publicaciones.
+    Muestra campos adicionales si el usuario es una Institución.
+    """
+    # Nuevo campo para tipo de publicación
+    post_type = forms.ChoiceField(
+        label="Tipo de Publicación",
+        choices=Post.PostType.choices,
+        widget=forms.RadioSelect, # Usar radio buttons es más claro
+        required=True
+    )
+    
+    # Checkbox para campañas masivas
+    is_campaign = forms.BooleanField(
+        label="¿Es una campaña masiva?",
+        help_text="Marca esta casilla si es una solicitud o donación a gran escala.",
+        required=False # No es obligatorio
+    )
+
+    # El campo de categoría que ya teníamos
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.all(),
+        label="Categoría",
+        empty_label="Selecciona una categoría",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = Post
+        # --- Añadir los nuevos campos al 'fields' ---
+        fields = [
+            'post_type',
+            'is_campaign',
+            'title', 
+            'description', 
+            'category', 
+            'quantity',
+        ]
+        labels = {
+            'title': 'Título de la publicación',
+            'description': 'Descripción (¿Qué necesitas o qué ofreces?)',
+            'quantity': 'Cantidad (aprox. en unidades, kg, piezas, etc.)',
+        }
+        widgets = {
+            'title': forms.TextInput(attrs={'placeholder': 'Ej. Ropa de invierno para niños'}),
+            'description': forms.Textarea(attrs={'placeholder': 'Describo a detalle...', 'rows': 4}),
+            'quantity': forms.NumberInput(attrs={'placeholder': 'Ej. 10', 'min': '0.01'}),
+        }
+
+    # --- Lógica Dinámica en __init__ ---
+    def __init__(self, *args, **kwargs):
+        # Extraemos el 'user' que la vista nos pasará
+        user = kwargs.pop('user', None)
+        
+        super().__init__(*args, **kwargs)
+        
+        # Lógica de queryset de categoría
+        if 'Category' in globals():
+            self.fields['category'].queryset = Category.objects.all()
+        else:
+            self.fields['category'].queryset = Category.objects.none()
+
+        # --- Lógica de visibilidad por ROL ---
+        is_institution = False
+        if user is not None and hasattr(user, 'institution'):
+            is_institution = True
+        
+        # Si el usuario NO es una institución, eliminamos los campos
+        if not is_institution:
+            del self.fields['post_type']
+            del self.fields['is_campaign']
