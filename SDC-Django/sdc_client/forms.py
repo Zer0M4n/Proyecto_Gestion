@@ -1,6 +1,7 @@
 import re
 from django import forms
 from django.core.exceptions import ValidationError
+from .models import Post, Category
 
 # --- Funciones de Validación Reutilizables ---
 
@@ -108,3 +109,61 @@ class InstitutionRegistrationForm(forms.Form):
                 self.add_error('institution_password', 'La contraseña debe contener al menos un número.')
         
         return cleaned_data
+
+# --- Formulario de Publicaciones ---
+
+class PostForm(forms.ModelForm):
+    """
+    Formulario para crear nuevas publicaciones (Solicitudes o Donaciones).
+    """
+    category = forms.ModelChoiceField(
+        queryset=Category.objects.all(),
+        label="Categoría",
+        empty_label="Selecciona una categoría",
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+    class Meta:
+        model = Post
+        
+        # Campos que el usuario debe llenar
+        fields = [
+            'title', 
+            'description', 
+            'category', 
+            'quantity',
+        ]
+        
+        # Etiquetas personalizadas para el formulario
+        labels = {
+            'title': 'Título de la publicación',
+            'description': 'Descripción (¿Qué necesitas o qué ofreces?)',
+            'quantity': 'Cantidad (aprox. en unidades, kg, piezas, etc.)',
+        }
+        
+        # Opcional: Widgets para añadir clases de CSS y 'placeholders'
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'placeholder': 'Ej. Ropa de invierno para niños',
+                'class': 'form-control'
+            }),
+            'description': forms.Textarea(attrs={
+                'placeholder': 'Describo a detalle los artículos o la necesidad...',
+                'class': 'form-control',
+                'rows': 4
+            }),
+            'quantity': forms.NumberInput(attrs={
+                'placeholder': 'Ej. 10',
+                'class': 'form-control',
+                'min': '0.01'
+            }),
+        }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Aseguramos que el queryset se cargue
+        if 'Category' in globals():
+            self.fields['category'].queryset = Category.objects.all()
+        else:
+            # Si Category no se pudo importar, deja el queryset vacío
+            self.fields['category'].queryset = Category.objects.none()
