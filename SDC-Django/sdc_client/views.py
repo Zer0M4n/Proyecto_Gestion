@@ -140,32 +140,33 @@ def register(request):
 # Esta vista reemplazará tu antigua vista 'auth'
 # Se convertirá en un endpoint de API que devuelve un token
 
-@api_view(['POST']) # Solo acepta peticiones POST
-@permission_classes([AllowAny]) # Cualquiera puede intentar iniciar sesión
+@api_view(['POST']) 
+@permission_classes([AllowAny]) 
 def api_login_view(request):
     
-    # Usamos request.data en lugar de request.POST para DRF
     email = request.data.get('email')
     password = request.data.get('password')
 
     if not email or not password:
         return JsonResponse({'error': 'Email y contraseña requeridos'}, status=400)
 
-    # authenticate() usa nuestro CustomUser y maneja el hashing
+    # Autenticar al usuario
     user = authenticate(request, email=email, password=password)
 
     if user is not None:
-        # ¡Autenticación exitosa!
-        # Generamos los tokens JWT
+        # Crear la sesión en el servidor para Django
+        login(request, user) 
+        
+        # Generar los tokens JWT
         refresh = RefreshToken.for_user(user)
         
-        # Debemos determinar el tipo de usuario para la redirección en el frontend
+        # Determinar el tipo de usuario y la URL de redirección
         user_type = 'unknown'
-        redirect_url = '/' # Default
+        redirect_url = '/'
         
         if hasattr(user, 'donor'):
             user_type = 'donor'
-            redirect_url = '/donor_feed' # URL de 'donor_feed'
+            redirect_url = '/donor_feed'
         elif hasattr(user, 'donee'):
             user_type = 'donee'
             redirect_url = '/donee_feed'
@@ -173,7 +174,7 @@ def api_login_view(request):
             user_type = 'institution'
             redirect_url = '/institution_feed'
         
-        # Devolvemos los tokens y la información del usuario
+        # Devolver la respuesta JSON al frontend
         return JsonResponse({
             'message': 'Login exitoso',
             'refresh': str(refresh),
